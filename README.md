@@ -3,7 +3,7 @@
 BrowserMob Proxy allows you to manipulate HTTP requests and responses, capture HTTP content, and export performance data as a [HAR file](http://www.softwareishard.com/blog/har-12-spec/).
 BMP works well as a standalone proxy server, but it is especially useful when embedded in Selenium tests.
 
-The latest version of BrowserMob Proxy is 2.1.4, powered by [LittleProxy](https://github.com/adamfisk/LittleProxy).
+The latest version of BrowserMob Proxy is 2.1.5, powered by [LittleProxy](https://github.com/adamfisk/LittleProxy).
 
 If you're running BrowserMob Proxy within a Java application or Selenium test, get started with [Embedded Mode](#getting-started-embedded-mode). If you want to run BMP from the
 command line as a standalone proxy, start with [Standalone](#getting-started-standalone).
@@ -14,7 +14,7 @@ To use BrowserMob Proxy in your tests or application, add the `browsermob-core` 
     <dependency>
         <groupId>net.lightbody.bmp</groupId>
         <artifactId>browsermob-core</artifactId>
-        <version>2.1.4</version>
+        <version>2.1.5</version>
         <scope>test</scope>
     </dependency>
 ```
@@ -74,7 +74,7 @@ The legacy interface, implicitly defined by the ProxyServer class, has been extr
     proxyServer.start();
     // [...]
 
-    // To use the LittleProxy-powered 2.1.4 release, simply change to
+    // To use the LittleProxy-powered 2.1.5 release, simply change to
     // the LegacyProxyServer interface and the adapter for the new
     // LittleProxy-based implementation:
     LegacyProxyServer proxyServer = new BrowserMobProxyServerLegacyAdapter();
@@ -205,7 +205,7 @@ If you're using Java and Selenium, the easiest way to get started is to embed th
     <dependency>
         <groupId>net.lightbody.bmp</groupId>
         <artifactId>browsermob-core</artifactId>
-        <version>2.1.4</version>
+        <version>2.1.5</version>
         <scope>test</scope>
     </dependency>
 ```
@@ -395,7 +395,7 @@ When you build the latest code from source, you'll have access to the latest sna
     <dependency>
         <groupId>net.lightbody.bmp</groupId>
         <artifactId>browsermob-core</artifactId>
-        <version>2.1.5-SNAPSHOT</version>
+        <version>2.1.6-SNAPSHOT</version>
         <scope>test</scope>
     </dependency>
 ```
