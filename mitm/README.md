@@ -61,11 +61,11 @@ By default, when using the MITM module with LittleProxy, the CA Root Certificate
     
     // save the newly-generated Root Certificate and Private Key -- the .cer file can be imported 
     // directly into a browser
-    rootCertificateGenerator.saveRootCertificateAsPemFile(new File("/tmp/certificate.cer");
-    rootCertificateGenerator.savePrivateKeyAsPemFile(new File("/tmp/private-key.pem", "password");
+    rootCertificateGenerator.saveRootCertificateAsPemFile(new File("/tmp/certificate.cer"));
+    rootCertificateGenerator.savePrivateKeyAsPemFile(new File("/tmp/private-key.pem"), "password");
     
     // or save the certificate and private key as a PKCS12 keystore, for later use
-    rootCertificateGenerator.saveRootCertificateAndKey("PKCS12", new File("/tmp/keystore.p12", 
+    rootCertificateGenerator.saveRootCertificateAndKey("PKCS12", new File("/tmp/keystore.p12"), 
             "privateKeyAlias", "password");
     
     // tell the ImpersonatingMitmManager  use the RootCertificateGenerator we just configured
