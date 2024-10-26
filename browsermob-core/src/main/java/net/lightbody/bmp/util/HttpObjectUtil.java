@@ -5,9 +5,17 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import net.lightbody.bmp.exception.UnsupportedCharsetException;
+
+import org.apache.commons.io.IOUtils;
+import org.brotli.dec.BrotliInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
 /**
@@ -67,6 +75,12 @@ public class HttpObjectUtil {
 
         // update the Content-Length header, since the size may have changed
         message.headers().set(HttpHeaders.Names.CONTENT_LENGTH, newBinaryContents.length);
+        
+        //find content-encoding , remove it 
+        String encoding = message.headers().get("Content-Encoding");
+        if(encoding != null && encoding.equals("br")) {
+        	message.headers().remove(HttpHeaders.Names.CONTENT_ENCODING);
+        }
     }
 
     /**
@@ -88,6 +102,34 @@ public class HttpObjectUtil {
         return new String(contentBytes, charset);
     }
 
+    /**
+     * Extracts the entity body from an HTTP content object, according to the specified character set. The character set cannot be null. If
+     * the character set is not specified or is unknown, you still must specify a suitable default charset (see {@link BrowserMobHttpUtil#DEFAULT_HTTP_CHARSET}).
+     *
+     * @param httpContent HTTP content object to extract the entity body from
+     * @param charset character set of the entity body
+     * @param headers headers
+     * @return String representation of the entity body
+     * @throws IllegalArgumentException if the charset is null
+     */
+    public static String extractHttpEntityBody(HttpContent httpContent, Charset charset, HttpHeaders headers) {
+        if (charset == null) {
+            throw new IllegalArgumentException("No charset specified when extracting the contents of an HTTP message");
+        }
+       
+        byte[] contentBytes = BrowserMobHttpUtil.extractReadableBytes(httpContent.content());
+        
+        //经过 br 压缩的要单独处理
+        if(headers != null) {
+        	String en = headers.get(HttpHeaders.Names.CONTENT_ENCODING);
+        	if(en != null && en.equalsIgnoreCase("br")) {
+        		return BrotliToString(new ByteArrayInputStream(contentBytes));
+        	}
+        }
+        
+        return new String(contentBytes, charset);
+    }
+    
     /**
      * Extracts the entity body from a FullHttpMessage, according to the character set in the message's Content-Type header. If the Content-Type
      * header is not present or does not specify a charset, assumes the ISO-8859-1 character set (see {@link BrowserMobHttpUtil#DEFAULT_HTTP_CHARSET}).
@@ -111,7 +153,9 @@ public class HttpObjectUtil {
             throw cause;
         }
 
-        return extractHttpEntityBody(httpMessage, charset);
+        //Those that are compressed by br need to be processed separately and converted to plain text.
+        HttpHeaders headers = httpMessage.headers();
+        return extractHttpEntityBody(httpMessage, charset, headers);
     }
 
     /**
@@ -143,4 +187,28 @@ public class HttpObjectUtil {
     public static byte[] extractBinaryHttpEntityBody(HttpContent httpContent) {
         return BrowserMobHttpUtil.extractReadableBytes(httpContent.content());
     }
+    
+    /**
+     * Convert the compressed text to plain text.
+     * @param is compressed text
+     * @return plain text.
+     */
+    public static String BrotliToString(InputStream is) {
+        try {
+            BrotliInputStream stream = new BrotliInputStream(is);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            StringBuilder result = new StringBuilder();
+            String str = null;
+            while ((str = reader.readLine()) != null) {
+                result.append(str);
+            }
+            return result.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
+    }
+    
 }
